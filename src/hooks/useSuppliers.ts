@@ -1,35 +1,72 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Supplier } from '../types';
-
-const MOCK_SUPPLIERS: Supplier[] = [
-  {
-    id: '1',
-    name: 'SKF Tunisie',
-    type: 'manufacturer',
-    contact: {
-      email: 'contact@skf.tn',
-      phone: '+216 71 234 567',
-      address: 'Zone Industrielle, Tunis'
-    },
-    taxInfo: {
-      vatNumber: '1234567/A/M/000',
-      registrationNumber: 'B0123456789'
-    },
-    paymentTerms: {
-      days: 60,
-      method: 'bank_transfer'
-    },
-    brands: ['SKF', 'SKF Bearing', 'SKF Maintenance'],
-    rating: 5,
-    status: 'active',
-    lastOrder: new Date().toISOString()
-  }
-];
+import { db } from '../lib/supabase';
 
 export function useSuppliers() {
-  const [suppliers] = useState<Supplier[]>(MOCK_SUPPLIERS);
-  const [loading] = useState(false);
-  const [error] = useState<string | null>(null);
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchSuppliers = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await db.from('suppliers').select('*');
+      if (error) throw error;
+      setSuppliers(data || []);
+      setError(null);
+    } catch (err) {
+      setError('Failed to fetch suppliers');
+      console.error('Error fetching suppliers:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const createSupplier = useCallback(async (supplierData: Partial<Supplier>) => {
+    setLoading(true);
+    try {
+      // Ensure required fields are present
+      if (!supplierData.name || !supplierData.email || !supplierData.phone || !supplierData.address || !supplierData.vat_number || !supplierData.registration_number) {
+        throw new Error('Required fields are missing');
+      }
+
+      const { data, error } = await db.from('suppliers').insert([
+        {
+          name: supplierData.name,
+          type: supplierData.type || 'distributor',
+          email: supplierData.email,
+          phone: supplierData.phone,
+          address: supplierData.address,
+          vat_number: supplierData.vat_number,
+          registration_number: supplierData.registration_number,
+          payment_days: supplierData.payment_days || 0,
+          payment_method: supplierData.payment_method || 'bank_transfer',
+          brands: supplierData.brands || [],
+          rating: supplierData.rating || 0,
+          status: supplierData.status || 'active'
+        }
+      ]).select().single();
+
+      if (error) throw error;
+      
+      if (data) {
+        setSuppliers(prev => [...prev, data]);
+        setError(null);
+        return data;
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to create supplier';
+      setError(message);
+      console.error('Error creating supplier:', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchSuppliers();
+  }, [fetchSuppliers]);
 
   const getSupplier = useCallback((id: string) => {
     return suppliers.find(supplier => supplier.id === id);
@@ -39,6 +76,8 @@ export function useSuppliers() {
     suppliers,
     loading,
     error,
-    getSupplier
+    getSupplier,
+    createSupplier,
+    fetchSuppliers
   };
 }

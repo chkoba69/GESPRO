@@ -18,22 +18,16 @@ const SupplierForm: React.FC<SupplierFormProps> = ({ onSubmit, initialData = {} 
     const supplier: Partial<Supplier> = {
       name: formData.get('name') as string,
       type: formData.get('type') as 'manufacturer' | 'distributor' | 'importer',
-      contact: {
-        email: formData.get('email') as string,
-        phone: formData.get('phone') as string,
-        address: formData.get('address') as string,
-      },
-      taxInfo: {
-        vatNumber: formData.get('vatNumber') as string,
-        registrationNumber: formData.get('registrationNumber') as string,
-      },
-      paymentTerms: {
-        days: Number(formData.get('paymentDays')),
-        method: formData.get('paymentMethod') as 'bank_transfer' | 'check' | 'cash',
-      },
-      brands,
-      rating,
-      status: formData.get('status') as 'active' | 'inactive',
+      email: formData.get('email') as string,
+      phone: formData.get('phone') as string,
+      address: formData.get('address') as string,
+      vat_number: formData.get('vatNumber') as string,
+      registration_number: formData.get('registrationNumber') as string,
+      payment_days: Number(formData.get('paymentDays')) || 0,
+      payment_method: formData.get('paymentMethod') as 'bank_transfer' | 'check' | 'cash',
+      brands: brands.filter(brand => brand.trim() !== ''),
+      rating: rating,
+      status: formData.get('status') as 'active' | 'inactive'
     };
 
     onSubmit(supplier);
@@ -50,7 +44,6 @@ const SupplierForm: React.FC<SupplierFormProps> = ({ onSubmit, initialData = {} 
               name="name"
               defaultValue={initialData.name}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-              required
             />
           </div>
 
@@ -106,7 +99,6 @@ const SupplierForm: React.FC<SupplierFormProps> = ({ onSubmit, initialData = {} 
               name="email"
               defaultValue={initialData.contact?.email}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-              required
             />
           </div>
 
@@ -117,7 +109,6 @@ const SupplierForm: React.FC<SupplierFormProps> = ({ onSubmit, initialData = {} 
               name="phone"
               defaultValue={initialData.contact?.phone}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-              required
             />
           </div>
 
@@ -128,7 +119,6 @@ const SupplierForm: React.FC<SupplierFormProps> = ({ onSubmit, initialData = {} 
               defaultValue={initialData.contact?.address}
               rows={3}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-              required
             />
           </div>
         </div>
@@ -154,7 +144,6 @@ const SupplierForm: React.FC<SupplierFormProps> = ({ onSubmit, initialData = {} 
               name="registrationNumber"
               defaultValue={initialData.taxInfo?.registrationNumber}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-              required
             />
           </div>
         </div>

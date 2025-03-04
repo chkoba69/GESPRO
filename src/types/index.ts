@@ -5,263 +5,77 @@ export interface Product {
   brand: string;
   category: string;
   barcode?: string;
-  technicalSpecs: Record<string, string>;
+  technical_specs: Record<string, any>;
   images: string[];
   equivalents: string[];
-  purchasePrice: {
-    local: number;
-    foreign?: {
-      amount: number;
-      currency: string;
-    };
-  };
-  margin: number;
-  maxDiscount: number;
-  price: {
-    retail: number;
-    wholesale: number;
-    bulk: number;
-  };
+  purchase_price_local: number;
+  purchase_price_foreign?: number;
+  currency: string;
+  exchange_rate: number;
+  margin_percentage: number;
+  max_discount: number;
+  retail_price: number;
+  wholesale_price: number;
+  bulk_price: number;
   stock: number;
-  minStock: number;
-  lastUpdated: string;
+  min_stock: number;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Supplier {
   id: string;
   name: string;
   type: 'manufacturer' | 'distributor' | 'importer';
-  contact: {
-    email: string;
-    phone: string;
-    address: string;
-  };
-  taxInfo: {
-    vatNumber: string;
-    registrationNumber: string;
-  };
-  paymentTerms: {
-    days: number;
-    method: 'bank_transfer' | 'check' | 'cash';
-  };
+  email: string;
+  phone: string;
+  address: string;
+  vat_number: string;
+  registration_number: string;
+  payment_days: number;
+  payment_method: 'bank_transfer' | 'check' | 'cash';
   brands: string[];
   rating: number;
   status: 'active' | 'inactive';
-  lastOrder: string;
+  created_at: string;
+  updated_at: string;
+  last_order_at?: string;
 }
 
 export interface Client {
   id: string;
   name: string;
   type: 'retail' | 'wholesale' | 'bulk';
-  contact: {
-    email: string;
-    phone: string;
-    address: string;
-  };
-  taxInfo: {
-    vatNumber: string;
-    registrationNumber: string;
-  };
-  priceLevel: 'retail' | 'wholesale' | 'bulk';
-  creditLimit: number;
-  paymentTerms: number;
+  email: string;
+  phone: string;
+  address: string;
+  vat_number: string;
+  registration_number: string;
+  price_level: 'retail' | 'wholesale' | 'bulk';
+  credit_limit: number;
+  payment_terms: number;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Transaction {
   id: string;
-  clientId: string;
+  client_id: string;
   date: string;
-  items: {
-    productId: string;
-    quantity: number;
-    unitPrice: number;
-    discount: number;
-    discountType: 'percentage' | 'amount';
-    grossAmount: number;
-    netAmount: number;
-    vatAmount: number;
-    total: number;
-  }[];
   subtotal: number;
   vat: number;
-  fiscalStamp: number;
   total: number;
   status: 'pending' | 'completed' | 'cancelled';
-  paymentMethod: 'cib' | 'edinar' | 'cash' | 'credit';
+  created_at: string;
+  updated_at: string;
 }
 
-export interface Quote {
+export interface TransactionItem {
   id: string;
-  clientId: string;
-  date: string;
-  validUntil: string;
-  items: {
-    productId: string;
-    quantity: number;
-    unitPrice: number;
-    total: number;
-  }[];
-  subtotal: number;
-  vat: number;
+  transaction_id: string;
+  product_id: string;
+  quantity: number;
+  unit_price: number;
   total: number;
-  status: 'draft' | 'sent' | 'accepted' | 'rejected' | 'expired';
-  notes?: string;
-}
-
-export interface DeliveryNote {
-  id: string;
-  transactionId?: string;
-  clientId: string;
-  date: string;
-  items: {
-    productId: string;
-    quantity: number;
-  }[];
-  status: 'pending' | 'delivered' | 'cancelled';
-  deliveryAddress: string;
-  notes?: string;
-  signedBy?: string;
-  deliveryDate?: string;
-}
-
-export interface CreditNote {
-  id: string;
-  originalTransactionId: string;
-  clientId: string;
-  date: string;
-  items: {
-    productId: string;
-    quantity: number;
-    unitPrice: number;
-    total: number;
-    reason: string;
-  }[];
-  subtotal: number;
-  vat: number;
-  total: number;
-  status: 'pending' | 'processed' | 'cancelled';
-  notes?: string;
-}
-
-export interface PurchaseOrder {
-  id: string;
-  supplierId: string;
-  type: 'local' | 'international';
-  date: string;
-  items: {
-    productId: string;
-    quantity: number;
-    unitPrice: number;
-    total: number;
-    currency?: string;
-    exchangeRate?: number;
-  }[];
-  subtotal: number;
-  vat: number;
-  total: number;
-  currency: string;
-  exchangeRate: number;
-  status: 'draft' | 'sent' | 'confirmed' | 'received' | 'cancelled';
-  notes?: string;
-  expectedDeliveryDate?: string;
-  // International purchase specific fields
-  proformaInvoiceNumber?: string;
-  incoterm?: string;
-  customsDeclarationNumber?: string;
-  shippingMethod?: string;
-  estimatedArrivalDate?: string;
-  documentsReceived?: {
-    proformaInvoice?: boolean;
-    billOfLading?: boolean;
-    certificate?: boolean;
-    packingList?: boolean;
-  };
-}
-
-export interface PurchaseReceipt {
-  id: string;
-  purchaseOrderId: string;
-  supplierId: string;
-  type: 'local' | 'international';
-  date: string;
-  items: {
-    productId: string;
-    quantity: number;
-    unitPrice: number;
-    total: number;
-    currency?: string;
-    exchangeRate?: number;
-  }[];
-  subtotal: number;
-  vat: number;
-  total: number;
-  currency: string;
-  exchangeRate: number;
-  status: 'pending' | 'completed' | 'cancelled';
-  paymentMethod: 'bank_transfer' | 'check' | 'cash';
-  notes?: string;
-  // International purchase specific fields
-  customsClearanceDate?: string;
-  customsCharges?: number;
-  shippingCharges?: number;
-  otherCharges?: number;
-  totalLandedCost?: number;
-}
-
-export interface PurchaseReturn {
-  id: string;
-  originalReceiptId: string;
-  supplierId: string;
-  type: 'local' | 'international';
-  date: string;
-  items: {
-    productId: string;
-    quantity: number;
-    unitPrice: number;
-    total: number;
-    currency?: string;
-    exchangeRate?: number;
-    reason: string;
-  }[];
-  subtotal: number;
-  vat: number;
-  total: number;
-  currency: string;
-  exchangeRate: number;
-  status: 'pending' | 'processed' | 'cancelled';
-  notes?: string;
-}
-
-export interface SalesReport {
-  period: {
-    start: string;
-    end: string;
-  };
-  summary: {
-    totalSales: number;
-    totalVat: number;
-    totalCredits: number;
-    netSales: number;
-  };
-  bySalesperson: {
-    userId: string;
-    name: string;
-    transactions: number;
-    amount: number;
-    commission?: number;
-  }[];
-  byProduct: {
-    productId: string;
-    name: string;
-    quantity: number;
-    revenue: number;
-    profit: number;
-  }[];
-  byClient: {
-    clientId: string;
-    name: string;
-    transactions: number;
-    amount: number;
-  }[];
+  created_at: string;
 }
