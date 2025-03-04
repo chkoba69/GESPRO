@@ -1,52 +1,51 @@
-// This file will be removed once we implement the actual database
-// For now we'll use in-memory data storage
+import { createClient } from '@supabase/supabase-js';
 
-export const mockDatabase = {
-  products: [],
-  clients: [],
-  suppliers: [],
-  transactions: [],
-  quotes: [],
-  deliveryNotes: [],
-  creditNotes: [],
-  purchaseOrders: [],
-  purchaseReceipts: [],
-  purchaseReturns: []
-};
+// Supabase configuration
+const supabaseUrl = 'https://qfdwuivfdpexxxxbuofa.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmZHd1aXZmZHBleHh4eGJ1b2ZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDEwNTAwNjAsImV4cCI6MjA1NjYyNjA2MH0.hxjx9EmQb4A2qsQaQ0DnEfInIp02dMPJ4BBGF27P5vA';
 
-// Mock database operations
+// Create Supabase client
+export const supabase = createClient(supabaseUrl, supabaseKey);
+
+// Database operations
 export const db = {
   select: async (table: string) => {
-    return mockDatabase[table as keyof typeof mockDatabase];
+    const { data, error } = await supabase
+      .from(table)
+      .select();
+    
+    if (error) throw error;
+    return data || [];
   },
+  
   insert: async (table: string, data: any) => {
-    const tableData = mockDatabase[table as keyof typeof mockDatabase];
-    if (Array.isArray(tableData)) {
-      tableData.push({ ...data, id: crypto.randomUUID() });
-      return data;
-    }
-    throw new Error(`Table ${table} not found`);
+    const { data: insertedData, error } = await supabase
+      .from(table)
+      .insert(data)
+      .select();
+    
+    if (error) throw error;
+    return insertedData?.[0] || null;
   },
+  
   update: async (table: string, id: string, data: any) => {
-    const tableData = mockDatabase[table as keyof typeof mockDatabase];
-    if (Array.isArray(tableData)) {
-      const index = tableData.findIndex(item => item.id === id);
-      if (index !== -1) {
-        tableData[index] = { ...tableData[index], ...data };
-        return tableData[index];
-      }
-    }
-    throw new Error(`Item not found in ${table}`);
+    const { data: updatedData, error } = await supabase
+      .from(table)
+      .update(data)
+      .eq('id', id)
+      .select();
+    
+    if (error) throw error;
+    return updatedData?.[0] || null;
   },
+  
   delete: async (table: string, id: string) => {
-    const tableData = mockDatabase[table as keyof typeof mockDatabase];
-    if (Array.isArray(tableData)) {
-      const index = tableData.findIndex(item => item.id === id);
-      if (index !== -1) {
-        tableData.splice(index, 1);
-        return true;
-      }
-    }
-    throw new Error(`Item not found in ${table}`);
+    const { error } = await supabase
+      .from(table)
+      .delete()
+      .eq('id', id);
+    
+    if (error) throw error;
+    return true;
   }
 };
