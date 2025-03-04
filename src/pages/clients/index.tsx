@@ -7,7 +7,7 @@ import { Plus, X } from 'lucide-react';
 const ClientsPage: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
-  const [clients] = useState<Client[]>([
+  const [clients, setClients] = useState<Client[]>([
     {
       id: '1',
       name: 'TechnoPlus SARL',
@@ -28,7 +28,19 @@ const ClientsPage: React.FC = () => {
   ]);
 
   const handleSave = (client: Partial<Client>) => {
-    console.log('Saving client:', client);
+    if (editingClient) {
+      // Update existing client
+      setClients(prevClients =>
+        prevClients.map(c => c.id === editingClient.id ? { ...c, ...client } : c)
+      );
+    } else {
+      // Create new client
+      const newClient = {
+        ...client,
+        id: Date.now().toString() // Temporary ID until we implement proper database integration
+      };
+      setClients(prevClients => [...prevClients, newClient as Client]);
+    }
     setShowForm(false);
     setEditingClient(null);
   };
@@ -39,7 +51,7 @@ const ClientsPage: React.FC = () => {
   };
 
   const handleDelete = (clientId: string) => {
-    console.log('Deleting client:', clientId);
+    setClients(prevClients => prevClients.filter(client => client.id !== clientId));
   };
 
   return (

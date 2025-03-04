@@ -28,6 +28,17 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, initialData = {} })
       technicalSpecs: specsObject,
       images,
       equivalents,
+      purchasePrice: {
+        local: Number(formData.get('localPurchasePrice')),
+        ...(formData.get('foreignPurchasePrice') ? {
+          foreign: {
+            amount: Number(formData.get('foreignPurchasePrice')),
+            currency: formData.get('foreignPurchaseCurrency') as string
+          }
+        } : {})
+      },
+      margin: Number(formData.get('margin')),
+      maxDiscount: Number(formData.get('maxDiscount')),
       price: {
         retail: Number(formData.get('retailPrice')),
         wholesale: Number(formData.get('wholesalePrice')),
@@ -126,7 +137,78 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, initialData = {} })
       </div>
 
       <div className="space-y-4">
-        <h3 className="text-lg font-medium text-gray-900">Tarification</h3>
+        <h3 className="text-lg font-medium text-gray-900">Prix d'Achat</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Prix d'Achat Local (TND)</label>
+            <input
+              type="number"
+              name="localPurchasePrice"
+              defaultValue={initialData.purchasePrice?.local}
+              step="0.001"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">Prix d'Achat en Devise</label>
+            <div className="grid grid-cols-2 gap-2">
+              <input
+                type="number"
+                name="foreignPurchasePrice"
+                defaultValue={initialData.purchasePrice?.foreign?.amount}
+                step="0.001"
+                placeholder="Montant"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              />
+              <select
+                name="foreignPurchaseCurrency"
+                defaultValue={initialData.purchasePrice?.foreign?.currency}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              >
+                <option value="EUR">EUR</option>
+                <option value="USD">USD</option>
+                <option value="GBP">GBP</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        <h3 className="text-lg font-medium text-gray-900">Marges et Remises</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Marge (%)</label>
+            <input
+              type="number"
+              name="margin"
+              defaultValue={initialData.margin}
+              step="0.01"
+              min="0"
+              max="100"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Remise Maximum (%)</label>
+            <input
+              type="number"
+              name="maxDiscount"
+              defaultValue={initialData.maxDiscount}
+              step="0.01"
+              min="0"
+              max="100"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              required
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        <h3 className="text-lg font-medium text-gray-900">Prix de Vente</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700">Prix Détail (TND)</label>

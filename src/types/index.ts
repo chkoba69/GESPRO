@@ -8,6 +8,15 @@ export interface Product {
   technicalSpecs: Record<string, string>;
   images: string[];
   equivalents: string[];
+  purchasePrice: {
+    local: number;
+    foreign?: {
+      amount: number;
+      currency: string;
+    };
+  };
+  margin: number;
+  maxDiscount: number;
   price: {
     retail: number;
     wholesale: number;
